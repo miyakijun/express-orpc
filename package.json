@@ -21,7 +21,7 @@
     "cors": "^2.8.5",
     "express": "^4.22.1",
     "swagger-ui-express": "^5.0.1",
-    "zod": "^v3.24.0"
+    "zod": "^4.3.4"
   },
   "devDependencies": {
     "@redocly/cli": "^2.14.1",

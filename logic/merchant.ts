@@ -1,4 +1,4 @@
-const createPost = async (body: any) => {
+const all = async (body: any) => {
     return {
         id: '1', // Schema 定義 id 為 string
         title: body.title,
@@ -17,6 +17,5 @@ const getPostById = async (id: string) => {
 }
 
 export default {
-    createPost,
-    getPostById,
+    all,
 }
