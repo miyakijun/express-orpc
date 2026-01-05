@@ -21,24 +21,21 @@
         ],
         "parameters": [
           {
-            "name": "limit",
+            "name": "page",
             "in": "query",
             "schema": {
               "type": "number",
-              "minimum": 1,
-              "maximum": 100,
-              "default": 10
+              "default": 1
             },
             "allowEmptyValue": true,
             "allowReserved": true
           },
           {
-            "name": "page",
+            "name": "limit",
             "in": "query",
             "schema": {
               "type": "number",
-              "minimum": 1,
-              "default": 1
+              "default": 10
             },
             "allowEmptyValue": true,
             "allowReserved": true

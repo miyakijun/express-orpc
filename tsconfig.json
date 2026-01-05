@@ -8,10 +8,10 @@
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "module": "esnext",
+    "moduleResolution": "Bundler",//?
     "target": "ES2022",
-    // "types": [],
-    // For nodejs:
-    // "lib": ["esnext"],
+    "allowSyntheticDefaultImports": true,//?
+    "esModuleInterop": true,//?
     "types": ["node"],
     // and npm install -D @types/node
 

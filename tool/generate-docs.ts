@@ -1,5 +1,5 @@
 import { OpenAPIGenerator } from "@orpc/openapi";
-import { appRouter } from "./routers";
+import { appRouter } from "../routers";
 import * as fs from "fs";
 import * as path from "path";
 import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";

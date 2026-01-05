@@ -1,14 +1,26 @@
 import { z } from 'zod';
 
+export const PostSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  content: z.string(),
+  authorId: z.number(),
+  createdAt: z.date(),
+});
+
+
+export const CreatePostInput = z.object({
+  title: z.string().min(1, '標題不能為空'),
+  content: z.string(),
+});
+
 export const ComponentSchemas = {
-  // 健康檢查
   Health: z.object({
     status: z.string(),
     timestamp: z.date().optional(),
     version: z.string().optional(),
   }),
 
-  // 存款回傳
   DepositResponse: z.object({
     status: z.enum(['success', 'failed', 'pending']),
     transactionId: z.string(),
@@ -16,7 +28,6 @@ export const ComponentSchemas = {
     balance: z.number().optional(),
   }),
 
-  // 通用錯誤
   Error: z.object({
     code: z.string(),
     message: z.string(),
