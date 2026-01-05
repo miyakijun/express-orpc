@@ -1,19 +1,24 @@
-// import { os } from '@orpc/server';
+import type { Request, Response, NextFunction } from 'express';
 
-// // 建立一個基礎的 procedure builder
-// // 如果你未來需要 Context (例如 headers, user)，可以改成 os.$context<{ user: string }>()
-// export const p = os;
+// 假設你的 Symbol 是從某個 constants 引入的
+import { SYMBOL_BO_PERSON } from './constants'; 
 
-
-
-// src/orpc.ts
-import { os } from '@orpc/server';
-
-// 定義你的 Context 形狀
 export type MyContext = {
-  user?: any; // 對應原本的 req[SYMBOL_BO_PERSON]
-  config?: any; // 對應原本傳入的 config
+  user?: { id: number; name: string }; // 定義你想要的 User 形狀
+  req: Request;
+  res: Response;
 };
 
-// 建立帶有 Context 支援的 builder
-export const p = os.$context<MyContext>();
+export const createContext = async ({ req, res }: { req: Request; res: Response }): Promise<MyContext> => {
+  // 🎯 關鍵在這裡！
+  // 我們假設 parseCookieMiddleware 已經跑過了
+  // 所以 req[SYMBOL_BO_PERSON] 裡面應該要有東西 (如果登入的話)
+  const user = (req as any)[SYMBOL_BO_PERSON];
+
+  // 回傳給 oRPC 使用
+  return {
+    user, 
+    req,
+    res,
+  };
+};

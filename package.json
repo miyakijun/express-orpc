@@ -7,7 +7,10 @@
     "dev": "tsx watch main.ts",
     "build:docs": "tsx generate-docs.ts",
     "d1": "npx @redocly/cli preview-docs ./public/openapi.json",
-    "d2": "npx @redocly/cli build-docs ./public/openapi.json --output=api-docs.html"
+    "d2": "npx @redocly/cli build-docs ./public/openapi.json --output=api-docs.html",
+    "build": "tsup main.ts --format esm --sourcemap --clean",
+    "es-build": "esbuild main.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/main.js",
+    "start": "node --enable-source-maps dist/main.js"
   },
   "keywords": [],
   "author": "",
@@ -29,6 +32,8 @@
     "@types/express": "^5.0.6",
     "@types/node": "^25.0.3",
     "@types/swagger-ui-express": "^4.1.8",
+    "esbuild": "^0.27.2",
+    "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }

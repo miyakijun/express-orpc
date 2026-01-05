@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { os } from '@orpc/server';
-import { p } from '../orpc'; // 引入你的 Procedure Builder
+import { p } from '../orpc'; 
 
 // --- Schemas (也可以放在 schemas.ts 共用) ---
 const PostSchema = z.object({
@@ -26,12 +26,7 @@ const listPosts = p
     summary: '取得文章列表',
     tags: ['Posts'],
   })
-  .input(
-    z.object({
-      limit: z.coerce.number().min(1).max(100).default(10), // 自動轉型
-      page: z.coerce.number().min(1).default(1),
-    })
-  )
+  .input(CreatePostInput)
   .output(z.array(PostSchema)) // 回傳文章陣列
   .handler(async ({ input, context }) => {
     // 這裡可以直接拿到型別安全的 input.limit 和 input.page
@@ -87,17 +82,13 @@ const createPost = p
     summary: '新增文章',
     tags: ['Posts'],
   })
-  .input(z.object({
-    title: z.string().min(1),
-    content: z.string(),
-  })) // 這裡的 input 會自動對應到 Body
+  .input(CreatePostInput) // 這裡的 input 會自動對應到 Body
   .output(PostSchema)
   .handler(async ({ input, context }) => {
-    // 🔥 使用 Context 裡的 user
+    console.log('input:', input);
+    console.log('context:',context);
     const authorId = context.user?.id || 0;
-
     console.log(`User ${authorId} creating post: ${input.title}`);
-
     // 模擬寫入資料庫
     return {
       id: 'new-id-123',
@@ -108,6 +99,9 @@ const createPost = p
     };
   });
 
+
+//   Router (路由器)
+// 概念：用來把一堆 Procedure 打包成群組（資料夾）的東西。
 // --- Router Export ---
 export const postsRouter = os.router({
   list: listPosts,
