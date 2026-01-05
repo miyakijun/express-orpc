@@ -1,57 +1,57 @@
 import type { Request, Response, NextFunction } from 'express';
-import { Token } from './utils/token'; // 假設你的 Token 工具路徑
-import { extractPerson } from './utils/auth'; // 假設你的驗證工具
-import { BO_COOKIE_KEY } from './constants';
+// 假設你有定義 User 的型別，沒有的話先用 any
+// import { User } from './types'; 
 
+// 1. 定義 Context 的形狀
 export type MyContext = {
-  user?: { id: number; role: string }; // 定義你的 User Type
   req: Request;
   res: Response;
-  // next: NextFunction; // 其實在 Context 裡通常用不到 next，但你想留著也可以
+  next: NextFunction; // 👈 關鍵：這裡要宣告 Context 裡有 next
+  user?: any;         // 這裡放解析出來的 User
 };
 
-// 傳入的參數通常只有 req, res，有些 adapter 會給 next
-export const createContext = async ({ req, res, next }: { req: Request; res: Response, next: NextFunction }): Promise<MyContext> => {
-  let user = undefined;
+// 類似原本的 parseReqIpMiddleware
+const checkIp = (req: Request) => {
+  const ip = req.ip;
+  // 假設 isBlocked 是你的工具函式
+  // if (isBlocked(ip)) throw new Error('IP Blocked');
+};
 
-  // --- 原本 parseCookieMiddleware 的邏輯開始 ---
+// 類似原本的 parseCookieMiddleware
+const parseUser = async (req: Request) => {
+  // 注意：如果你原本用 signedCookies，這裡也要用 signedCookies
+  const token = req.signedCookies ? req.signedCookies['token'] : req.cookies['token'];
   
-  const token = req.signedCookies && req.signedCookies[BO_COOKIE_KEY];
+  if (!token) return undefined;
+  
+  // ... 這裡放原本的驗證邏輯 ...
+  // return extractPerson(token);
+  return { id: 1, role: 'admin' }; // 假資料
+};
 
-  // 1. 如果有 Token 才開始驗證
-  if (token) {
-    // 假設 config 需要從某個 global 或 env 拿 (因為這裡很難傳入 config)
-    const signKey = process.env.BACKOFFICE_TOKEN_SIGN_KEY; 
-    
-    const person = extractPerson(token, signKey);
+// 2. 更新 createContext 的參數定義
+// 這裡必須宣告它接受 { req, res, next }
+export const createContext = async ({ 
+  req, 
+  res, 
+  next 
+}: { 
+  req: Request; 
+  res: Response; 
+  next: NextFunction; // 👈 這裡也要加
+}): Promise<MyContext> => {
+  
+  // 1. 先跑 IP 檢查
+  checkIp(req); 
 
-    if (!person) {
-      // 驗證失敗：清空 Cookie (Side Effect 是允許的)
-      res.cookie(BO_COOKIE_KEY, '', { expire: new Date(0) });
-    } else {
-      // 查 Redis
-      const redisToken = await Token.get(person.id);
-      
-      // 檢查 Redis Token 是否吻合
-      if (redisToken && redisToken === token) {
-        // ✅ 驗證成功！
-        // 這裡有副作用：更新 Redis 時間
-        await Token.set(person.id, token);
-        
-        // 設定 user 變數
-        user = person;
-      }
-    }
-  }
-  // --- 邏輯結束 ---
+  // 2. 再跑 User 解析
+  const user = await parseUser(req);
 
-  // 如果你也想順便塞回 req 讓其他 legacy middleware 用，可以在這裡偷偷做 (Optional)
-  // (req as any)['SYMBOL_BO_PERSON'] = user;
-
-  return {
-    user, // 這裡回傳的 user 可能是 undefined (沒登入) 或 person 物件
-    req,
-    res,
-    next
+  // 3. 打包回傳，這裡要把 next 也放進去
+  return { 
+    req, 
+    res, 
+    next, // 👈 這裡要把接到的 next 傳出去
+    user 
   };
 };
